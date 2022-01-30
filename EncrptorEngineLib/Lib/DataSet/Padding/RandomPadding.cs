@@ -101,19 +101,19 @@ namespace Encryptor.Lib
                 throw new ArgumentOutOfRangeException(nameof(blockSize));
             
             int maxPadSize = blockSize - 1;
-            ushort padLentgh;
+            ushort padLength;
             int totalLength = blockSize * source.Length;
             byte[] lastLine = source[source.Length - 1];
             ushort rawPadLen;
 
-            rawPadLen = padLentgh = (ushort)((lastLine[lastLine.Length - 2] << 8) | lastLine[lastLine.Length - 1]);
+            rawPadLen = padLength = (ushort)((lastLine[lastLine.Length - 2] << 8) | lastLine[lastLine.Length - 1]);
 
-            padLentgh %= blockSize;
+            padLength %= blockSize;
 
-            if ((padLentgh == maxPadSize) && (source.Length == 1))
+            if ((padLength == maxPadSize) && (source.Length == 1))
                 throw new Exception("No enough lines are provided for such padding");
 
-            totalLength -= padLentgh + 2;
+            totalLength -= padLength + 2;
             int realLines = (totalLength - 1) / blockSize + 1;
             byte[][] result = new byte[realLines][];
 
@@ -124,7 +124,7 @@ namespace Encryptor.Lib
                 totalLength -= result[i].Length;
             }
 
-            Console.WriteLine($"{nameof(RandomPadding)}: source size: {result[realLines-1].Length}; padding: {padLentgh}; randomised: {rawPadLen}; blockSize: {blockSize}");
+            Console.WriteLine($"{nameof(RandomPadding)}: source size: {result[realLines-1].Length}; padding: {padLength}; randomised: {rawPadLen}; blockSize: {blockSize}");
 
             return result;
         }
