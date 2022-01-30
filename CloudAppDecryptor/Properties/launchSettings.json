@@ -2,7 +2,7 @@
   "profiles": {
     "CloudAppDecryptor": {
       "commandName": "Project",
-      "workingDirectory": ".\\..\\CloudDataEncryptor\\bin\\Debug\\netcoreapp3.1"
+      "workingDirectory": ".\\\\..\\\\CloudDataEncryptor\\\\bin\\\\Debug\\\\netcoreapp3.1"
     }
   }
 }
