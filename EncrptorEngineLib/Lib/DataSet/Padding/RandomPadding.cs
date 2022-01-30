@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -92,7 +92,7 @@ namespace Encryptor.Lib
         /// <param name="source">Two last lines of source data with blockSize, or one if input source have no more data</param>
         /// <param name="blockSize">Used block size</param>
         /// <returns>Cleared single line of raw bytes</returns>
-        public byte[][] ClearPaddFromBlocks(byte[][] source, ushort blockSize)
+        public byte[][] ClearPadFromBlocks(byte[][] source, ushort blockSize)
         {
             if ((source == null) || (source.Length == 0))
                 throw new ArgumentNullException(nameof(source));

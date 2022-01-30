@@ -27,7 +27,7 @@ namespace Encryptor.Lib
         /// <param name="source">The source lines of data, each with blockSize to unpad data. See ClearPaddFromBlocks proeprty/</param>
         /// <param name="blockSize">Used block size</param>
         /// <returns>Cleared raw bytes</returns>
-        public byte[][] ClearPaddFromBlocks(byte[][] source, ushort blockSize);
+        public byte[][] ClearPadFromBlocks(byte[][] source, ushort blockSize);
 
         /// <summary>
         /// Returns amount of last lines which shall be provided to ClearPaddFromBlocks function 

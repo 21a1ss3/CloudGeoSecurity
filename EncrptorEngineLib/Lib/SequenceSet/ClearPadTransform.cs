@@ -100,7 +100,7 @@ namespace Encryptor.Lib
                                 byte[][] lines = _cachedLines[i].Queue.ToArray();
                                 _cachedLines[i].Queue.Clear();
 
-                                byte[][] unpadded = _padding.ClearPaddFromBlocks(lines, _blockSize);
+                                byte[][] unpadded = _padding.ClearPadFromBlocks(lines, _blockSize);
 
                                 foreach (byte[] unpadLine in unpadded)
                                     _cachedLines[i].Queue.Enqueue(unpadLine);

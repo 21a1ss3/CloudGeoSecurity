@@ -35,7 +35,7 @@ namespace Encryptor.Lib
         /// <param name="source">The source lines of data, each with blockSize to unpad data. See ClearPaddFromBlocks proeprty/</param>
         /// <param name="blockSize">Used block size</param>
         /// <returns>Returned source array without performing any actual transformation</returns>
-        public byte[][] ClearPaddFromBlocks(byte[][] source, ushort blockSize)
+        public byte[][] ClearPadFromBlocks(byte[][] source, ushort blockSize)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));

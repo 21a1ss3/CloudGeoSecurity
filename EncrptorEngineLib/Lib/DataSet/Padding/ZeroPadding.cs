@@ -45,7 +45,7 @@ namespace Encryptor.Lib
         /// <param name="source">The source lines of data, each with blockSize to unpad data. See ClearPaddFromBlocks proeprty/</param>
         /// <param name="blockSize">Used block size</param>
         /// <returns>Thorws exception. See details.</returns>
-        public byte[][] ClearPaddFromBlocks(byte[][] source, ushort blockSize)
+        public byte[][] ClearPadFromBlocks(byte[][] source, ushort blockSize)
         {
             throw new NotSupportedException();
         }
