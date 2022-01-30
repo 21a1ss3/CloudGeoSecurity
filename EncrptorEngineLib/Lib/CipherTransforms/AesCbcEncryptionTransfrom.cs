@@ -45,7 +45,7 @@ namespace Encryptor.Lib
 
 
                 _iv.Capacity = Source.Count.Value;
-                _aesTransofrms = new ICryptoTransform[Source.Count.Value];
+                _aesTransforms = new ICryptoTransform[Source.Count.Value];
                 _isFirstTime = new bool[Source.Count.Value];
                 for (int i = 0; i < _isFirstTime.Length; i++)
                     _isFirstTime[i] = true;
@@ -54,7 +54,7 @@ namespace Encryptor.Lib
                 _eng.Key = key;
             }
 
-            ICryptoTransform[] _aesTransofrms;
+            ICryptoTransform[] _aesTransforms;
             private List<byte[]> _iv = new List<byte[]>();
 
             private bool _encrypt;
@@ -104,7 +104,7 @@ namespace Encryptor.Lib
                     {
                         if (!_resultTransform.IsFinished(i))
                         {
-                            result = _aesTransofrms[i].TransformFinalBlock(new byte[0], 0, 0);
+                            result = _aesTransforms[i].TransformFinalBlock(new byte[0], 0, 0);
                             _resultTransform.WriteToBuffer(i, result);
                         }
 
@@ -137,16 +137,16 @@ namespace Encryptor.Lib
                         _isFirstTime[i] = false;
 
                         if (_encrypt)
-                            _aesTransofrms[i] = _eng.CreateEncryptor();
+                            _aesTransforms[i] = _eng.CreateEncryptor();
                         else
                         {
-                            _aesTransofrms[i] = _eng.CreateDecryptor();
+                            _aesTransforms[i] = _eng.CreateDecryptor();
 
                             continue;
                         }
                     } //if (_isFirst)
 
-                    int transformed = _aesTransofrms[i].TransformBlock(source, 0, source.Length, result, 0);
+                    int transformed = _aesTransforms[i].TransformBlock(source, 0, source.Length, result, 0);
                     if (transformed == 0)
                         continue;
 
