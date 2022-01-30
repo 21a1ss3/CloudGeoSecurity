@@ -22,18 +22,6 @@ namespace Encryptor.Lib
 
             byte[][] result = new byte[entropies.Count][];
 
-            for (int i = 0; i < entropies.Count; i++)
-            {
-                byte[] encoded;
-
-                if (version == null)
-                    encoded = KeyEntropyContainer.PutIn(entropies[i]);
-                else
-                    encoded = KeyEntropyContainer.PutIn(entropies[i], version.Value);
-
-                result[i] = encoded;
-            }
-
             InMemoryDataset srcKeys = new InMemoryDataset(result.Length);
             MemoryStream encryptedEntropyStrem = new MemoryStream();
 
@@ -43,10 +31,20 @@ namespace Encryptor.Lib
 
             connEncr.Result.RegisterReceiver(this, 1024, _noPadding);
 
-            for (int i = 0; i < result.Length; i++)
+            for (int i = 0; i < entropies.Count; i++)
             {
-                srcKeys.WriteToBuffer(i, result[i]);
+                (byte[] openHeader, byte[] payload) encoded;
+
+                if (version == null)
+                    encoded = KeyEntropyContainer.PutIn(entropies[i]);
+                else
+                    encoded = KeyEntropyContainer.PutIn(entropies[i], version.Value);
+
+
+                srcKeys.WriteToBuffer(i, encoded.payload);
                 srcKeys.FinishItem(i);
+
+                result[i] = encoded.openHeader;
             }
 
             while (connEncr.TransformNext()) ;
@@ -57,6 +55,8 @@ namespace Encryptor.Lib
 
                 encryptedEntropyStrem.Seek(0, SeekOrigin.Begin);
                 encryptedEntropyStrem.SetLength(0);
+
+                encryptedEntropyStrem.Write(result[i], 0, result[i].Length); //dumping open header
 
                 while ((buffer = connEncr.Result.GetNextBlockForItem(this, i)) != null)
                     if (buffer.Length != 0)
@@ -79,6 +79,7 @@ namespace Encryptor.Lib
                 throw new Exception($"{nameof(Cipher)} shall be specified first");
 
             KeyEntropy[] entropies = new KeyEntropy[encryptedEntropies.Length];
+            byte[][] openHeaders = new byte[encryptedEntropies.Length][];
 
             InMemoryDataset encryptedKeys = new InMemoryDataset(encryptedEntropies.Length);
             MemoryStream clearedEntropyStream = new MemoryStream();
@@ -91,7 +92,12 @@ namespace Encryptor.Lib
 
             for (int i = 0; i < encryptedEntropies.Length; i++)
             {
-                encryptedKeys.WriteToBuffer(i, encryptedEntropies[i]);
+                ArraySegment<byte> encrEntropySegmentation = new ArraySegment<byte>(encryptedEntropies[i]);
+                int openHeaderLen = KeyEntropyContainer.GetOpenHeaderSize(encryptedEntropies[i]);
+
+                openHeaders[i] = encrEntropySegmentation.Slice(0, openHeaderLen).ToArray();
+
+                encryptedKeys.WriteToBuffer(i, encrEntropySegmentation.Slice(openHeaderLen).ToArray());
                 encryptedKeys.FinishItem(i);
             }
 
@@ -111,7 +117,7 @@ namespace Encryptor.Lib
                 clearedEntropyStream.Flush();
 
                 buffer = clearedEntropyStream.ToArray();
-                entropies[i] = KeyEntropyContainer.PullOut(buffer);
+                entropies[i] = KeyEntropyContainer.PullOut(openHeaders[i], buffer);
             }
 
             return entropies;
