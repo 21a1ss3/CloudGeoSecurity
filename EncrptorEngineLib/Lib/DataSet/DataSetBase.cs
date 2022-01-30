@@ -105,7 +105,7 @@ namespace Encryptor.Lib
         /// <param name="receiver">An object representing receiver</param>
         /// <param name="item">Item index in the set</param>
         /// <returns> - A byte[BlockSize] or [1..Blocksize] block of source bytes bases on padding
-        ///           - byte[0] when bufers isn't full
+        ///           - byte[0] when buffers isn't full
         ///           - null when reached EOF</returns>
         public byte[] GetNextBlockForItem(object receiver, int item)
         {
