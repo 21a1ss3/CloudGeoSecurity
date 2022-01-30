@@ -109,6 +109,15 @@ namespace Encryptor.Lib
             Count = _sources.Count;
         }
 
+        private void _initRecieverProperties(FileReceiverProperties fileProperties)
+        {
+
+            fileProperties.ReadStates = new ReaderState[Count.Value];
+
+            for (int i = 0; i < Count.Value; i++)
+                fileProperties.ReadStates[i] = new ReaderState();
+        }
+
         /// <summary>
         /// Overrides DataSetBase.OnBeforeRegisterReceiver and configures receiver properties
         /// </summary>
@@ -119,11 +128,7 @@ namespace Encryptor.Lib
             base.OnBeforeRegisterReceiver(receiver, properties);
 
             if (Count != null)
-            {
-                FileReceiverProperties fileProperties = (FileReceiverProperties)properties;
-
-                fileProperties.ReadStates = new ReaderState[Count.Value];
-            }            
+                _initRecieverProperties((FileReceiverProperties)properties);
         }
 
         /// <summary>
@@ -135,9 +140,7 @@ namespace Encryptor.Lib
             base.OnCountDetermined(newCount);
 
             foreach (FileReceiverProperties fileProp in Receivers.Values)
-            {
-                fileProp.ReadStates = new ReaderState[newCount];
-            }
+                _initRecieverProperties(fileProp);
         }
 
         /// <summary>
