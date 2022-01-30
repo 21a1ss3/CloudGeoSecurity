@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,7 +51,7 @@ namespace Encryptor.Lib
             do
             {
                 randomisedPadLength = (ushort)(RandomNumberGenerator.GetInt32(ushort.MaxValue + 1));
-                randomisedPadLength -= (ushort)(padLength % maxPadSize);
+                randomisedPadLength -= (ushort)(randomisedPadLength % maxPadSize);
                 randomisedPadLength += padLength;
             } while (randomisedPadLength % blockSize != padLength); //Protecting of overflow without loosing the range
 
