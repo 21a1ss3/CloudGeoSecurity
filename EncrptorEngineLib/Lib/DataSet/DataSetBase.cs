@@ -67,14 +67,17 @@ namespace Encryptor.Lib
 
                 _count = value;
 
-                OnCountDetermined(Count.Value);
-
-                if (_count != null && _countChangeHandlers != null)
+                if (_count != null)
                 {
-                    foreach (var hndlr in _countChangeHandlers)
-                        hndlr(this);
+                    OnCountDetermined(Count.Value);
 
-                    _countChangeHandlers = null;
+                    if (_countChangeHandlers != null)
+                    {
+                        foreach (var hndlr in _countChangeHandlers)
+                            hndlr(this);
+
+                        _countChangeHandlers = null;
+                    }
                 }
             }
         }
@@ -207,7 +210,7 @@ namespace Encryptor.Lib
         /// once per each derived class.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        protected void RequireRecieverPropertyType<T>() where T: ReceiverProperties, new()
+        protected void RequireRecieverPropertyType<T>() where T : ReceiverProperties, new()
         {
             Type newPropType = typeof(T);
 
@@ -297,7 +300,7 @@ namespace Encryptor.Lib
             public Queue<byte[]>[] PadedBlocks => _padedBlocks;
 
 
-            
+
             void IReceiverProperties.SetBlockSize(ushort size)
             {
                 BlockSize = size;
