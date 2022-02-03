@@ -8,17 +8,19 @@ namespace CloudAppDecryptor
     {
         static void Main(string[] args)
         {
+            int clouds = 3;
+            int encryptionLayers = 2;
+
+
             SequenceSet encrSet = new SequenceSet();
 
             RandomPadding rndPadding = new RandomPadding();
             NoPadding noPad = new NoPadding();
 
-            KeyEntropy[] keys = new KeyEntropy[3];
-            KeyEntropyEncryption keyEntropyEncryption = new KeyEntropyEncryption();
-            KeyEntropyTransform keyEntropyTransform = new KeyEntropyTransform();
-            byte[][] encryptedIntermediateEntropy = new byte[keys.Length][];
-            byte[][] encryptedKeys = new byte[keys.Length][];
-            byte[] salt = File.ReadAllBytes($"salt.bin");
+            KeyGammaSequence[] keyGammSequences = new KeyGammaSequence[encryptionLayers];
+            KeyGammaSequenceEncryption keyGammaSeqEncr = new KeyGammaSequenceEncryption();
+            KeyGammaSequenceBlend encrGammaSequnecesBlend = new KeyGammaSequenceBlend();
+            byte[] salt = new byte[64];
 
 
             Console.Write("Proide master password: ");
@@ -28,34 +30,45 @@ namespace CloudAppDecryptor
                 System.Text.Encoding.UTF8.GetBytes(password),
                 salt, 2048, System.Security.Cryptography.HashAlgorithmName.SHA256);
 
-            keyEntropyEncryption.EncryptionKey = pbkdf2.GetBytes(32);
+            keyGammaSeqEncr.EncryptionKey = pbkdf2.GetBytes(32);
             
             {
                 AesCbcEncryptionTransfrom keyTransform = new AesCbcEncryptionTransfrom();
                 keyTransform.Padding = rndPadding;
-                keyEntropyEncryption.Cipher = keyTransform;
+                keyGammaSeqEncr.Cipher = keyTransform;
             }
 
 
-            for (int i = keys.Length - 1; i > -1; i--)
+            for (int i = 0; i < clouds; i++)
             {
-                encryptedIntermediateEntropy[i] = File.ReadAllBytes($"key{i}_0.bin");
-                encryptedKeys[i] = File.ReadAllBytes($"key{i}_1.bin");
+                encrGammaSequnecesBlend.IntermediateGammaSequneties.Add(
+                                                    _decryptGammaSeq(
+                                                               pbkdf2,
+                                                               keyGammaSeqEncr,
+                                                               i,
+                                                               0
+                                                               ));
             }
 
-            keyEntropyTransform.IntermediateEntropies.AddRange(
-                    keyEntropyEncryption.Decrypt(encryptedIntermediateEntropy)
-                );
-
-            keys = keyEntropyEncryption.Decrypt(encryptedKeys);
-
-            for (int i = keys.Length - 1; i > -1; i--)
+            for (int i = 0; i < encryptionLayers; i++)
             {
-                keys[i] = keyEntropyTransform.TransformKeyEntropy(keys[i]);
+                keyGammSequences[i] = _decryptGammaSeq(
+                                                pbkdf2,
+                                                keyGammaSeqEncr,
+                                                clouds - i % clouds - 1,
+                                                i / clouds + 1
+                                           );
 
+                keyGammSequences[i] = encrGammaSequnecesBlend.TransformKeyGammaSequence(keyGammSequences[i]);
+            }
+
+
+
+            for (int i = keyGammSequences.Length - 1; i > -1; i--)
+            {
                 AesCbcEncryptionTransfrom transform = new AesCbcEncryptionTransfrom();
                 
-                transform.Key = keys[i].ExtractBytes(0, 32);
+                transform.Key = keyGammSequences[i].ExtractBytes(0, 32);
                 transform.Encrypt = false;
                 transform.Padding = rndPadding;
 
@@ -69,7 +82,7 @@ namespace CloudAppDecryptor
 
 
             FileDataset inputFileDS = new FileDataset();
-            inputFileDS.AddFile("encrypted.bin");
+            inputFileDS.AddFile("cloud0\\encrypted.bin");
             inputFileDS.FixFileset();
 
 
@@ -94,105 +107,40 @@ namespace CloudAppDecryptor
 
             stream.Close();
         }
-        //static void oldMain2(string[] args)
-        //{
-        //    SequenceSet encrSet = new SequenceSet();
+        
+        private static KeyGammaSequence _decryptGammaSeq(System.Security.Cryptography.Rfc2898DeriveBytes pbkdf2,
+                                        KeyGammaSequenceEncryption keyGammaSeqEncr,
+                                        int iteration,
+                                        int set)
+        {
+            byte[] salt = new byte[64];
+            byte[] rawGammaSequence;
 
-        //    RandomPadding rndPadding = new RandomPadding();
-        //    NoPadding noPad = new NoPadding();
+            using (FileStream keyStream = File.Open($"cloud{iteration}\\key{iteration}_{set}.bin", FileMode.Open, FileAccess.Read))
+            {
+                int readBytes = 0;
+                rawGammaSequence = new byte[keyStream.Length - salt.Length];
 
-        //    byte[][] keys = new byte[3][];
-        //    for (int i = keys.Length - 1; i > -1; i--)
-        //    {
-        //        AesCbcEncryptionTransfrom transform = new AesCbcEncryptionTransfrom();
+                do
+                    readBytes += keyStream.Read(salt, readBytes, salt.Length - readBytes);
+                while (readBytes < salt.Length);
 
-        //        keys[i] = File.ReadAllBytes($"key{i}.bin");
-
-        //        transform.Key = keys[i];
-        //        transform.Encrypt = false;
-        //        transform.Padding = rndPadding;
-
-        //        encrSet.ScheduleTransformation(transform);
-
-        //        /*ClearPadTransform clearPad = new ClearPadTransform();
-        //        clearPad.Padding = rndPadding;
-        //        clearPad.BlockSize = 16;
-        //        encrSet.ScheduleTransformation(clearPad);*/
-        //    }
+                readBytes = 0;
 
 
-        //    FileDataset inputFileDS = new FileDataset();
-        //    inputFileDS.AddFile("encrypted.bin");
-        //    inputFileDS.FixFileset();
+                do
+                    readBytes += keyStream.Read(rawGammaSequence, readBytes, rawGammaSequence.Length - readBytes);
+                while (readBytes < rawGammaSequence.Length);
 
+                keyStream.Close();
+            }
 
-        //    IConnectedTransform transformation = encrSet.StartTransformation(inputFileDS);
-        //    object receiver = new object();
-        //    transformation.Result.RegisterReceiver(receiver, 1024, noPad);
+            pbkdf2.Salt = salt;
+            keyGammaSeqEncr.EncryptionKey = pbkdf2.GetBytes(32);
 
-        //    FileStream stream = File.Open("decrypted.txt", FileMode.Create, FileAccess.Write);
+            KeyGammaSequence[] decrypted = keyGammaSeqEncr.Decrypt(new byte[][] { rawGammaSequence });
 
-        //    byte lastLoop = 1;
-
-        //    while (transformation.TransformNext() || (lastLoop-- > 0))
-        //    {
-        //        byte[] rawData;
-        //        while (((rawData = transformation.Result.GetNextBlockForItem(receiver, 0)) != null) && (rawData.Length > 0))
-        //        {
-        //            stream.Write(rawData, 0, rawData.Length);
-        //        }
-
-        //        stream.Flush();
-        //    }
-
-        //    stream.Close();
-        //}
-
-        //static void oldMain(string[] args)
-        //{
-        //    EncryptorEngine enc = new EncryptorEngine();
-
-        //    Console.WriteLine("Proide filename to decrypt: ");
-        //    string filename = Console.ReadLine();
-
-        //    byte[] srcFile = File.ReadAllBytes($"{filename}.enc");
-
-        //    byte[][] secSeq = new byte[3][];
-
-        //    for (int i = 0; i < secSeq.Length; i++)
-        //        secSeq[i] = new byte[32];
-
-        //    for (int i = 0; i < secSeq.Length; i++)
-        //    {
-        //        BinaryReader keysReader = new BinaryReader(File.OpenRead($"keyst{i}.bin"));
-
-        //        byte key = keysReader.ReadByte();
-        //        byte seg = keysReader.ReadByte();
-        //        int len = keysReader.ReadInt32();
-
-        //        byte[] bytes = keysReader.ReadBytes(len);
-
-        //        Array.Copy(bytes, 0, secSeq[key], seg * secSeq[key].Length / 2, len);
-        //    }
-
-        //    Console.WriteLine("Provide master password:");
-        //    byte[] password = System.Text.Encoding.UTF8.GetBytes(Console.ReadLine());
-
-        //    for (int i = 0; i < secSeq.Length; i++)
-        //        secSeq[i] = enc.TransformKey(secSeq[i], password, false);
-
-        //    byte[] plainFile;
-        //    try
-        //    {
-        //        plainFile = enc.DecryptContent(srcFile, secSeq);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Unable to decrypt file. Double check the password. Exception: {ex}");
-        //        return;
-        //    }
-
-        //    File.WriteAllBytes($"{filename}.plain", plainFile);
-        //}
+            return decrypted[0];
+        }
     }
 }
