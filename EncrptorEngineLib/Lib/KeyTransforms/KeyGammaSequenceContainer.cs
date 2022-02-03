@@ -5,38 +5,38 @@ using System.Text;
 
 namespace Encryptor.Lib
 {
-    public static class KeyEntropyContainer
+    public static class KeyGammaSequenceContainer
     {
         private enum ContainerVersion : byte
         {
             V0 = 0,
         }
 
-        public static (byte[] openHeader, byte[] payload) PutIn(KeyEntropy keyEntropy, byte version = 0)
+        public static (byte[] openHeader, byte[] payload) PutIn(KeyGammaSequence keyGammaSequence, byte version = 0)
         {
             switch ((ContainerVersion)version)
             {
                 case ContainerVersion.V0:
-                    return _putInV0(keyEntropy);
+                    return _putInV0(keyGammaSequence);
 
 
                 default:
-                    throw new Exception("Unsupported version of Key Entropy Container");
+                    throw new Exception("Unsupported version of Key Gamma Sequence Container");
             }
         }
 
-        private static (byte[] openHeader, byte[] payload) _putInV0(KeyEntropy keyEntropy)
+        private static (byte[] openHeader, byte[] payload) _putInV0(KeyGammaSequence keyGammaSequence)
         {
-            if (keyEntropy == null)
-                throw new ArgumentNullException(nameof(keyEntropy));
+            if (keyGammaSequence == null)
+                throw new ArgumentNullException(nameof(keyGammaSequence));
             byte[] result;
 
             using (MemoryStream rawStream = new MemoryStream())
             {
                 using (BinaryWriter rawWriter = new BinaryWriter(rawStream))
                 {
-                    rawWriter.Write(keyEntropy.StartPosition);
-                    rawWriter.Write(keyEntropy.RawData);
+                    rawWriter.Write(keyGammaSequence.StartPosition);
+                    rawWriter.Write(keyGammaSequence.RawData);
 
                     rawWriter.Flush();
 
@@ -64,13 +64,13 @@ namespace Encryptor.Lib
 
 
                         default:
-                            throw new Exception("Unsupported version of Key Entropy Container");
+                            throw new Exception("Unsupported version of Key Gamma Sequence Container");
                     }
                 }
             }
         }
 
-        public static KeyEntropy PullOut(byte[] rawOpenHeader, byte[] rawPayload)
+        public static KeyGammaSequence PullOut(byte[] rawOpenHeader, byte[] rawPayload)
         {
             using (MemoryStream rawStream = new MemoryStream(rawOpenHeader))
             {
@@ -85,13 +85,13 @@ namespace Encryptor.Lib
 
 
                         default:
-                            throw new Exception("Unsupported version of Key Entropy Container");
+                            throw new Exception("Unsupported version of Key Gamma Sequence Container");
                     }
                 }
             }
         }        
 
-        private static KeyEntropy _pullOutV0(byte[] rawOpenHeader, byte[] rawPayload)
+        private static KeyGammaSequence _pullOutV0(byte[] rawOpenHeader, byte[] rawPayload)
         {
             /*
              * rawOpenHeader is ignored since it shall contain only single byte
@@ -110,14 +110,14 @@ namespace Encryptor.Lib
                         But it will actually fill it only up to EOF position
                         and then we would be able to shrink our buffer
                     */
-                    byte[] entropyBody = new byte[rawPayload.Length];
+                    byte[] keyGammaSequenceBody = new byte[rawPayload.Length];
 
-                    int readed = rawReader.Read(entropyBody, 0, entropyBody.Length);
-                    Array.Resize(ref entropyBody, readed);
+                    int readed = rawReader.Read(keyGammaSequenceBody, 0, keyGammaSequenceBody.Length);
+                    Array.Resize(ref keyGammaSequenceBody, readed);
 
                     rawReader.Close();
 
-                    return new KeyEntropy(entropyBody, startPos);
+                    return new KeyGammaSequence(keyGammaSequenceBody, startPos);
                 }
             }
 

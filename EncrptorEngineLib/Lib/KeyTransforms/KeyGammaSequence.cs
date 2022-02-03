@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Encryptor.Lib
 {
-    public class KeyEntropy
+    public class KeyGammaSequence
     {
         private ushort _startPosition;
         private byte[] _rawData;
 
-        public KeyEntropy(byte[] rawData, ushort start)
+        public KeyGammaSequence(byte[] rawData, ushort start)
         {
             if ((rawData == null) || (rawData.Length == 0))
                 throw new ArgumentNullException($"{nameof(rawData)} cannot be empty or equal to null");
@@ -63,21 +63,21 @@ namespace Encryptor.Lib
         }
 
 
-        public static KeyEntropy CreateRandom(ushort length)
+        public static KeyGammaSequence CreateRandom(ushort length)
         {
             if (length < 1)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            byte[] entropy = new byte[length];
+            byte[] gammaSequence = new byte[length];
             byte[] startIndexBytes = new byte[2];
             var cryptRandGen = System.Security.Cryptography.RandomNumberGenerator.Create();
 
-            cryptRandGen.GetBytes(entropy);
+            cryptRandGen.GetBytes(gammaSequence);
             cryptRandGen.GetBytes(startIndexBytes);
 
             ushort startIndex = BitConverter.ToUInt16(startIndexBytes, 0);
 
-            return new KeyEntropy(entropy, startIndex);
+            return new KeyGammaSequence(gammaSequence, startIndex);
         }
 
 

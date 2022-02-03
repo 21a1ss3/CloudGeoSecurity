@@ -5,25 +5,25 @@ using System.Text;
 
 namespace Encryptor.Lib
 {
-    public class KeyEntropyEncryption
+    public class KeyGammaSequenceEncryption
     {
         public ISymmetricCipherTransform Cipher { get; set; }
         public byte[] EncryptionKey { get; set; }
 
         private NoPadding _noPadding = new NoPadding();
 
-        public byte[][] Encrypt<T>(T entropies, byte? version = null) where T : ICollection<KeyEntropy>, IList<KeyEntropy>
+        public byte[][] Encrypt<T>(T keyGammaSequences, byte? version = null) where T : ICollection<KeyGammaSequence>, IList<KeyGammaSequence>
         {
-            if ((entropies == null))
-                throw new ArgumentNullException(nameof(entropies));
+            if ((keyGammaSequences == null))
+                throw new ArgumentNullException(nameof(keyGammaSequences));
 
             if ((Cipher == null))
                 throw new Exception($"{nameof(Cipher)} shall be specified first");
 
-            byte[][] result = new byte[entropies.Count][];
+            byte[][] result = new byte[keyGammaSequences.Count][];
 
             InMemoryDataset srcKeys = new InMemoryDataset(result.Length);
-            MemoryStream encryptedEntropyStrem = new MemoryStream();
+            MemoryStream encryptedGammayStrem = new MemoryStream();
 
             Cipher.Encrypt = true;
             Cipher.Key = EncryptionKey;
@@ -31,14 +31,14 @@ namespace Encryptor.Lib
 
             connEncr.Result.RegisterReceiver(this, 1024, _noPadding);
 
-            for (int i = 0; i < entropies.Count; i++)
+            for (int i = 0; i < keyGammaSequences.Count; i++)
             {
                 (byte[] openHeader, byte[] payload) encoded;
 
                 if (version == null)
-                    encoded = KeyEntropyContainer.PutIn(entropies[i]);
+                    encoded = KeyGammaSequenceContainer.PutIn(keyGammaSequences[i]);
                 else
-                    encoded = KeyEntropyContainer.PutIn(entropies[i], version.Value);
+                    encoded = KeyGammaSequenceContainer.PutIn(keyGammaSequences[i], version.Value);
 
 
                 srcKeys.WriteToBuffer(i, encoded.payload);
@@ -53,36 +53,36 @@ namespace Encryptor.Lib
             {
                 byte[] buffer;
 
-                encryptedEntropyStrem.Seek(0, SeekOrigin.Begin);
-                encryptedEntropyStrem.SetLength(0);
+                encryptedGammayStrem.Seek(0, SeekOrigin.Begin);
+                encryptedGammayStrem.SetLength(0);
 
-                encryptedEntropyStrem.Write(result[i], 0, result[i].Length); //dumping open header
+                encryptedGammayStrem.Write(result[i], 0, result[i].Length); //dumping open header
 
                 while ((buffer = connEncr.Result.GetNextBlockForItem(this, i)) != null)
                     if (buffer.Length != 0)
-                        encryptedEntropyStrem.Write(buffer, 0, buffer.Length);
+                        encryptedGammayStrem.Write(buffer, 0, buffer.Length);
 
-                encryptedEntropyStrem.Flush();
+                encryptedGammayStrem.Flush();
 
-                result[i] = encryptedEntropyStrem.ToArray();
+                result[i] = encryptedGammayStrem.ToArray();
             }
 
             return result;
         }
 
-        public KeyEntropy[] Decrypt(byte[][] encryptedEntropies)
+        public KeyGammaSequence[] Decrypt(byte[][] encryptedKeyGammaSequences)
         {
-            if ((encryptedEntropies == null))
-                throw new ArgumentNullException(nameof(encryptedEntropies));
+            if ((encryptedKeyGammaSequences == null))
+                throw new ArgumentNullException(nameof(encryptedKeyGammaSequences));
 
             if ((Cipher == null))
                 throw new Exception($"{nameof(Cipher)} shall be specified first");
 
-            KeyEntropy[] entropies = new KeyEntropy[encryptedEntropies.Length];
-            byte[][] openHeaders = new byte[encryptedEntropies.Length][];
+            KeyGammaSequence[] keyGammaSequences = new KeyGammaSequence[encryptedKeyGammaSequences.Length];
+            byte[][] openHeaders = new byte[encryptedKeyGammaSequences.Length][];
 
-            InMemoryDataset encryptedKeys = new InMemoryDataset(encryptedEntropies.Length);
-            MemoryStream clearedEntropyStream = new MemoryStream();
+            InMemoryDataset encryptedKeys = new InMemoryDataset(encryptedKeyGammaSequences.Length);
+            MemoryStream clearedGammasStream = new MemoryStream();
 
             Cipher.Encrypt = false;
             Cipher.Key = EncryptionKey;
@@ -90,37 +90,37 @@ namespace Encryptor.Lib
 
             connEncr.Result.RegisterReceiver(this, 1024, _noPadding);
 
-            for (int i = 0; i < encryptedEntropies.Length; i++)
+            for (int i = 0; i < encryptedKeyGammaSequences.Length; i++)
             {
-                ArraySegment<byte> encrEntropySegmentation = new ArraySegment<byte>(encryptedEntropies[i]);
-                int openHeaderLen = KeyEntropyContainer.GetOpenHeaderSize(encryptedEntropies[i]);
+                ArraySegment<byte> encrGammaSegmentation = new ArraySegment<byte>(encryptedKeyGammaSequences[i]);
+                int openHeaderLen = KeyGammaSequenceContainer.GetOpenHeaderSize(encryptedKeyGammaSequences[i]);
 
-                openHeaders[i] = encrEntropySegmentation.Slice(0, openHeaderLen).ToArray();
+                openHeaders[i] = encrGammaSegmentation.Slice(0, openHeaderLen).ToArray();
 
-                encryptedKeys.WriteToBuffer(i, encrEntropySegmentation.Slice(openHeaderLen).ToArray());
+                encryptedKeys.WriteToBuffer(i, encrGammaSegmentation.Slice(openHeaderLen).ToArray());
                 encryptedKeys.FinishItem(i);
             }
 
             while (connEncr.TransformNext()) ;
 
-            for (int i = 0; i < encryptedEntropies.Length; i++)
+            for (int i = 0; i < encryptedKeyGammaSequences.Length; i++)
             {
                 byte[] buffer;
 
-                clearedEntropyStream.Seek(0, SeekOrigin.Begin);
-                clearedEntropyStream.SetLength(0);
+                clearedGammasStream.Seek(0, SeekOrigin.Begin);
+                clearedGammasStream.SetLength(0);
 
                 while ((buffer = connEncr.Result.GetNextBlockForItem(this, i)) != null)
                     if (buffer.Length != 0)
-                        clearedEntropyStream.Write(buffer, 0, buffer.Length);
+                        clearedGammasStream.Write(buffer, 0, buffer.Length);
 
-                clearedEntropyStream.Flush();
+                clearedGammasStream.Flush();
 
-                buffer = clearedEntropyStream.ToArray();
-                entropies[i] = KeyEntropyContainer.PullOut(openHeaders[i], buffer);
+                buffer = clearedGammasStream.ToArray();
+                keyGammaSequences[i] = KeyGammaSequenceContainer.PullOut(openHeaders[i], buffer);
             }
 
-            return entropies;
+            return keyGammaSequences;
         }
     }
 }
