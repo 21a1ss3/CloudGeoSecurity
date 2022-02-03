@@ -167,7 +167,7 @@ namespace Encryptor.Lib
         /// <param name="receiver">An object representing receiver</param>
         /// <param name="item">Item index in the set</param>
         /// <returns>Padded source data from memory buffer</returns>
-        protected override byte[] GetNextBlockForItemCore(object reciever, int item)
+        protected override byte[] GetNextBlockForItemCore(object receiver, int item)
         {
             QueuedReceiverProperties properties = (QueuedReceiverProperties)Receivers[reciever];
 

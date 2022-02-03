@@ -135,10 +135,10 @@ namespace Encryptor.Lib
         /// <summary>
         /// Internal call for derived classesfrom GetNextBlockForItem
         /// </summary>
-        /// <param name="reciever">Verified recevier</param>
+        /// <param name="receiver">Verified recevier</param>
         /// <param name="item">Verified item index</param>
         /// <returns>Same as GetNextBlockForItem</returns>
-        protected abstract byte[] GetNextBlockForItemCore(object reciever, int item);
+        protected abstract byte[] GetNextBlockForItemCore(object receiver, int item);
 
 
         /// <summary>
