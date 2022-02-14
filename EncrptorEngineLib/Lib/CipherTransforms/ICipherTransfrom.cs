@@ -17,5 +17,10 @@ namespace Encryptor.Lib
         /// Gets or sets encryption mode
         /// </summary>
         public bool Encrypt { get; set; }
+
+        /// <summary>
+        /// Gets or sets chiper block size for padding
+        /// </summary>
+        public ushort BlockSize { get;  }
     }
 }

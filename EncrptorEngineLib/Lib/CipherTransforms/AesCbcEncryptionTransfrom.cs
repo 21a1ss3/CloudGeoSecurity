@@ -200,6 +200,11 @@ namespace Encryptor.Lib
         public IDatasetPadding Padding { get; set; }
 
         /// <summary>
+        /// Gets or sets chiper block size for padding
+        /// </summary>
+        public ushort BlockSize => 128 / 8;
+
+        /// <summary>
         /// Fixes and connects AesCbcEncryptionTransfrom for specific Dataset and Padding
         /// </summary>
         /// <param name="source">Source dataset</param>
