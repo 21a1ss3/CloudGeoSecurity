@@ -69,7 +69,7 @@ namespace Encryptor.Lib
                     if (writeMainBytes)
                     {
                         if (col != (blockSize - 2))
-                            crNumGen.GetBytes(result[line], padIndex, 1);
+                            crNumGen.GetBytes(result[line], col, 1);
                         else
                         {
                             result[line][col] = (byte)((randomisedPadLength >> 8) & 0xFF);

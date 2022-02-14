@@ -169,7 +169,7 @@ namespace Encryptor.Lib
         /// <returns>Padded source data from memory buffer</returns>
         protected override byte[] GetNextBlockForItemCore(object receiver, int item)
         {
-            QueuedReceiverProperties properties = (QueuedReceiverProperties)Receivers[reciever];
+            QueuedReceiverProperties properties = (QueuedReceiverProperties)Receivers[receiver];
 
             if (properties.ReceiveQueue[item].Finished)
                 return null;
