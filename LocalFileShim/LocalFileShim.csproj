@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Encryptor.Lib</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Dataset\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EncrptorEngineLib\EncrptorEngineLib.csproj" />
+  </ItemGroup>
+
+</Project>

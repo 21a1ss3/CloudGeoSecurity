@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EncrptorEngineLib\EncrptorEngineLib.csproj" />
+    <ProjectReference Include="..\LocalFileShim\LocalFileShim.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestFile1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
