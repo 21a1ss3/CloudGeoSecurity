@@ -6,10 +6,10 @@ using Microsoft.Graph;
 
 namespace Encryptor.Lib.OneDrive
 {
-    public class OnedriveFileInfo : OneDriveItemInfo, ICloudFileInfo
+    public class OneDriveFileInfo : OneDriveItemInfo, ICloudFileInfo
     {
 
-        public OnedriveFileInfo(DriveItem driveItem)
+        public OneDriveFileInfo(DriveItem driveItem)
             :base (driveItem)
         {
             if (driveItem.File == null)

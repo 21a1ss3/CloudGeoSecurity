@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Encryptor.Lib.OneDrive
 {
-    public class OnedriveDirectoryInfo : OneDriveItemInfo, ICloudDirectoryInfo
+    public class OneDriveDirectoryInfo : OneDriveItemInfo, ICloudDirectoryInfo
     {
-        public OnedriveDirectoryInfo(DriveItem driveItem)
+        public OneDriveDirectoryInfo(DriveItem driveItem)
             :base(driveItem)
         {
             if (driveItem.Folder == null)

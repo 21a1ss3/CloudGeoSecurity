@@ -196,10 +196,10 @@ namespace Encryptor.Lib.OneDrive
                 var item = BuildItemRequestByPath(path).Request().GetAsync().GetAwaiter().GetResult();
 
                 if (item.File != null)
-                    return new OnedriveFileInfo(item);
+                    return new OneDriveFileInfo(item);
 
                 if (item.Folder != null)
-                    return new OnedriveDirectoryInfo(item);
+                    return new OneDriveDirectoryInfo(item);
             }
             catch
             {
@@ -233,10 +233,10 @@ namespace Encryptor.Lib.OneDrive
                 foreach (var driveItem in remoteListOfFiles)
                 {
                     if (driveItem.File != null)
-                        items.Add(new OnedriveFileInfo(driveItem));
+                        items.Add(new OneDriveFileInfo(driveItem));
 
                     if (driveItem.Folder != null)
-                        items.Add(new OnedriveDirectoryInfo(driveItem));
+                        items.Add(new OneDriveDirectoryInfo(driveItem));
                 }
 
                 remoteListOfFiles = remoteListOfFiles.NextPageRequest?.GetAsync().GetAwaiter().GetResult();
