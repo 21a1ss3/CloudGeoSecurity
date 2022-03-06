@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BasicCloudStorageProviders\BasicCloudStorageProviders.csproj" />
     <ProjectReference Include="..\EncrptorEngineLib\EncrptorEngineLib.csproj" />
     <ProjectReference Include="..\LocalFileShim\LocalFileShim.csproj" />
   </ItemGroup>

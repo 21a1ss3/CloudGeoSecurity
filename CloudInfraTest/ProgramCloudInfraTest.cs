@@ -2,6 +2,10 @@
 using System.IO;
 using System.Linq;
 using Encryptor.Lib;
+using OneDrive = Encryptor.Lib.OneDrive;
+using GDrive = Encryptor.Lib.GDrive;
+using YDrive = Encryptor.Lib.Yandex;
+using Cache = Encryptor.Lib.Cache;
 
 namespace CloudInfraTest
 {
@@ -9,20 +13,211 @@ namespace CloudInfraTest
     {
         static void Main(string[] args)
         {
+            com_Main(args);
+            //TestOneDrive(args);
+            //TestGDrive(args);
+            //TestYDrive(args);
+        }
+
+        static void TestYDrive(string[] args)
+        {
+            YDrive.YandexDriveCloud yCloud = new YDrive.YandexDriveCloud();
+            Cache.ChunkCache cache = new Cache.ChunkCache(1 << 16);
+            yCloud.Cache = cache;
+
+            yCloud.AuthentificationAction += YCloud_AuthentificationAction;
+
+            bool status = yCloud.SignIn(YDrive.YandexAuthOptions.DeviceCode);
+
+            Console.WriteLine($"status: {status}; isAuth: {yCloud.IsAuthenticated}");
+
+            if (yCloud.IsAuthenticated)
+            {
+                var items = yCloud.EnumItems("TestFolder");
+
+                foreach (var item in items)
+                {
+                    Console.WriteLine("***************");
+                    Console.WriteLine($"  Name: {item.Name}, Container: {item.ContainerPath}, FullPath: {item.FullPath}, isFile: {item is ICloudFileInfo}");
+                    Console.WriteLine("################");
+                }
+            }
+        }
+
+        private static void YCloud_AuthentificationAction(object sender, YDrive.YandexActionInfo e)
+        {
+            switch (e.ActionType)
+            {
+                case YDrive.YandexActionType.OpenBrowser:
+                    break;
+                case YDrive.YandexActionType.DeviceCodeDisplay:
+                    Console.WriteLine($"Please visit {e.DeivceCodeUrl} and enter this code: {e.DeviceCode}");
+
+                    break;
+            }
+        }
+
+        static void TestGDrive(string[] args)
+        {
+            GDrive.GoogleDriveCloud cloud = new GDrive.GoogleDriveCloud();
+            Cache.ChunkCache cache = new Cache.ChunkCache(1 << 16);
+            cloud.Cache = cache;
+
+            cloud.AuthentificationAction += Cloud_AuthentificationAction1;
+
+            bool status = cloud.SignIn(GDrive.GAuthOptions.CustomBrowser);
+
+            Console.WriteLine($"status: {status}; isAuth: {cloud.IsAuthenticated}");
+
+            if (cloud.IsAuthenticated)
+            {
+                if (!cloud.DirectoryExists("DemoDir"))
+                {
+                    cloud.CreateDirectory("DemoDir");
+                    Console.WriteLine("Directory created!");
+                }
+
+                var items = cloud.EnumItems("");
+
+                foreach (var item in items)
+                {
+                    Console.WriteLine("***************");
+                    Console.WriteLine($"  Name: {item.Name}, Container: {item.ContainerPath}, FullPath: {item.FullPath}, isFile: {item is ICloudFileInfo}");
+                    Console.WriteLine("################");
+                }
+            }
+        }
+
+        private static void Cloud_AuthentificationAction1(object sender, GDrive.GAuthActionInfo e)
+        {
+            switch (e.ActionType)
+            {
+                case GDrive.GAuthActionType.LaunchBrowser:
+                    Console.WriteLine("Please visit this URL:");
+                    Console.WriteLine();
+                    Console.WriteLine(e.WebBrowserUri);
+                    Console.WriteLine();
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        static void TestOneDrive(string[] args)
+        {
+            OneDrive.OneDriveCloud cloud = new OneDrive.OneDriveCloud();
+            Cache.ChunkCache cache = new Cache.ChunkCache(1<<16);
+            cloud.Cache = cache;
+
+            cloud.AuthentificationAction += Cloud_AuthentificationAction;
+
+            bool status = cloud.SignIn(OneDrive.MsalAuthOption.EmbededBrowser);
+
+            Console.WriteLine($"status: {status}; isAuth: {cloud.IsAuthenticated}");
+
+            if(cloud.IsAuthenticated)
+            {
+                var items = cloud.EnumItems("");
+
+                foreach (var item in items)
+                {
+                    Console.WriteLine("***************");
+                    Console.WriteLine($"  Name: {item.Name}, Container: {item.ContainerPath}, FullPath: {item.FullPath}, isFile: {item is ICloudFileInfo}");
+                    Console.WriteLine("################");
+                }
+            }
+        }
+
+        private static void Cloud_AuthentificationAction(object sender, OneDrive.MsalAuthActionInfo e)
+        {
+            switch (e.MsalAuthAction)
+            {
+                case OneDrive.MsalAuthActionKind.DeviceCodeDisplay:
+                    Console.WriteLine($"Please visit {e.DeviceCodeVisitUrl} and enter this code: {e.DeviceCode}");
+                    break;
+                case OneDrive.MsalAuthActionKind.OpenBrowser:
+                    Console.WriteLine("Please visit this URL:");
+                    Console.WriteLine();
+                    Console.WriteLine(e.WebBrowserUrl);
+                    Console.WriteLine();
+                    break;
+            }
+            
+        }
+
+        static void com_Main(string[] args)
+        {
             int encryptionLayersCount = 2;
 
-            FileBasedCloud[] clouds = new FileBasedCloud[3];
+            ICloudStorage[] clouds = new ICloudStorage[3];
             EncryptorEngine engine = new EncryptorEngine();
+            Cache.ChunkCache cache = new Cache.ChunkCache(1 << 16);
             object receiver = new object();
 
-            for (int i = 0; i < clouds.Length; i++)
             {
-                FileBasedCloud cloud = new FileBasedCloud($"Cloud{i}");
-                clouds[i] = cloud;
+                OneDrive.OneDriveCloud oneDriveCloud = new OneDrive.OneDriveCloud();
+                oneDriveCloud.Cache = cache;
 
-                engine.CloudStorages.Add(cloud);
+                oneDriveCloud.AuthentificationAction += Cloud_AuthentificationAction;
+
+                bool status = oneDriveCloud.SignIn(OneDrive.MsalAuthOption.EmbededBrowser);
+
+                if (!status)
+                {
+                    Console.WriteLine("Unable to proceed! User msut successfully log into OneDirve!");
+                    return;
+                }
+
+
+                clouds[0] = oneDriveCloud;
+                engine.CloudStorages.Add(oneDriveCloud);
             }
 
+            {
+                GDrive.GoogleDriveCloud gCloud = new GDrive.GoogleDriveCloud();
+                gCloud.Cache = cache;
+                gCloud.AuthentificationAction += Cloud_AuthentificationAction1;
+
+                bool status = gCloud.SignIn(GDrive.GAuthOptions.CustomBrowser);
+                
+                if (!status)
+                {
+                    Console.WriteLine("Unable to proceed! User msut successfully log into Google drive!");
+                    return;
+                }
+
+                clouds[1] = gCloud;
+                engine.CloudStorages.Add(gCloud);
+
+            }
+            {
+                YDrive.YandexDriveCloud yCloud = new YDrive.YandexDriveCloud();
+                yCloud.Cache = cache;
+
+                yCloud.AuthentificationAction += YCloud_AuthentificationAction;
+
+                bool status = yCloud.SignIn(YDrive.YandexAuthOptions.DeviceCode);
+
+                Console.WriteLine($"status: {status}; isAuth: {yCloud.IsAuthenticated}");
+                if (!status)
+                {
+                    Console.WriteLine("Unable to proceed! User msut successfully log into Ynadex Disk!");
+                    return;
+                }
+
+                clouds[2] = yCloud;
+                engine.CloudStorages.Add(yCloud);
+            }
+
+            //for (int i = 2; i < clouds.Length; i++)
+            //{
+            //    FileBasedCloud cloud = new FileBasedCloud($"Cloud{i}");
+            //    clouds[i] = cloud;
+
+            //    engine.CloudStorages.Add(cloud);
+            //}
+                        
 
             engine.LoadConfiguration();
             EncryptionSet encryptionSet;
@@ -91,10 +286,10 @@ namespace CloudInfraTest
                             {
                                 clStream.Write(rawData, 0, rawData.Length);
                             }
-
-                            clStream.Flush();
                         }
 
+
+                        clStream.Flush();
                         clStream.Close();
                     }
 
@@ -122,7 +317,6 @@ namespace CloudInfraTest
 
                     break;
             }
-
 
             engine.ProtectNewKeys();
             engine.SaveConfiguration();

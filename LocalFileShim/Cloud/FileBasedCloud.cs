@@ -67,10 +67,10 @@ namespace Encryptor.Lib
                 cloudFileInfo.ContainerPath = cloudFileInfo.ContainerPath.Substring(1);
 
             cloudFileInfo.FileSize = fsFileInfo.Length;
-            cloudFileInfo.FullPath = fsFileInfo.FullName.Replace(_baseDirInfo.FullName, "");
+            cloudFileInfo.FullPath = Path.TrimEndingDirectorySeparator(fsFileInfo.FullName.Replace(_baseDirInfo.FullName, ""));
 
-            if (cloudFileInfo.FullPath[0] == '\\')
-                cloudFileInfo.FullPath = cloudFileInfo.FullPath.Substring(1);
+            //if (cloudFileInfo.FullPath[0] == '\\')
+            //    cloudFileInfo.FullPath = cloudFileInfo.FullPath.Substring(1);
 
             cloudFileInfo.Name = fsFileInfo.Name;
 
@@ -97,7 +97,7 @@ namespace Encryptor.Lib
         }
 
 
-        public ICloudItemInfo[] EnumFiles(string path)
+        public ICloudItemInfo[] EnumItems(string path)
         {
             string[] files = Directory.GetFiles(Path.Combine(BasePath, path));
             string[] directories = Directory.GetDirectories(Path.Combine(BasePath, path));

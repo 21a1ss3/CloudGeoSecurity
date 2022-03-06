@@ -28,8 +28,8 @@ namespace Encryptor.Lib
 
         public void LoadConfiguration()
         {
-            string cloudConfigDirPath = $"{_cloudFolderPrefix}\\Configuration";
-            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Configuration\\Keys";
+            string cloudConfigDirPath = $"{_cloudFolderPrefix}\\Cfg";
+            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Cfg\\Keys";
             string cloudTestDirPath = $"{_cloudFolderPrefix}\\Test";
             Encoding utf8 = Encoding.UTF8;
 
@@ -72,7 +72,7 @@ namespace Encryptor.Lib
                 cloudIds.Add(cloud.CloudId);
 
 
-                ICloudItemInfo[] keysList = cloud.EnumFiles(cloudKeysDirPath);
+                ICloudItemInfo[] keysList = cloud.EnumItems(cloudKeysDirPath);
 
                 foreach (var cloudKey in keysList)
                 {
@@ -145,8 +145,8 @@ namespace Encryptor.Lib
 
         public void SaveConfiguration()
         {
-            string cloudConfigDirPath = $"{_cloudFolderPrefix}\\Configuration";
-            //string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Configuration\\Keys";
+            string cloudConfigDirPath = $"{_cloudFolderPrefix}\\Cfg";
+            //string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Cfg\\Keys";
 
 
             List<Guid> cloudIds = new List<Guid>(CloudStorages.Count);
@@ -486,7 +486,7 @@ namespace Encryptor.Lib
 
         public void ProtectNewKeys()
         {
-            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Configuration\\Keys";
+            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Cfg\\Keys";
             var pbkdf2 = new Rfc2898DeriveBytes(
                Encoding.UTF8.GetBytes(MasterPassword),
                new byte[64], 2048, HashAlgorithmName.SHA256);
@@ -615,7 +615,7 @@ namespace Encryptor.Lib
 
         private KeyGammaSequence _readKeyGammaSequenceFromCloud(Guid keyId, Rfc2898DeriveBytes pbkdf2)
         {
-            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Configuration\\Keys";
+            string cloudKeysDirPath = $"{_cloudFolderPrefix}\\Cfg\\Keys";
 
             KeyGammaSequenceEncryption keyGammaSeqEncr = new KeyGammaSequenceEncryption();
             keyGammaSeqEncr.Cipher = new AesCbcEncryptionTransfrom();

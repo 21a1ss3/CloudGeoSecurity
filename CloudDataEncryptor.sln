@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncrptorEngineLib", "Encrpt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudAppDecryptor", "CloudAppDecryptor\CloudAppDecryptor.csproj", "{4565358A-EF00-4440-8727-3D51F185D58B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalFileShim", "LocalFileShim\LocalFileShim.csproj", "{E3872DFC-B726-471D-9023-F523045EF18E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalFileShim", "LocalFileShim\LocalFileShim.csproj", "{E3872DFC-B726-471D-9023-F523045EF18E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudInfraTest", "CloudInfraTest\CloudInfraTest.csproj", "{525B846B-23C3-4AC4-BEFB-C79C00B77C5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudInfraTest", "CloudInfraTest\CloudInfraTest.csproj", "{525B846B-23C3-4AC4-BEFB-C79C00B77C5F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudStorageProviders", "BasicCloudStorageProviders\BasicCloudStorageProviders.csproj", "{BD284F4E-3B77-4545-8368-45BA77EF63AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{525B846B-23C3-4AC4-BEFB-C79C00B77C5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{525B846B-23C3-4AC4-BEFB-C79C00B77C5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{525B846B-23C3-4AC4-BEFB-C79C00B77C5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD284F4E-3B77-4545-8368-45BA77EF63AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD284F4E-3B77-4545-8368-45BA77EF63AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD284F4E-3B77-4545-8368-45BA77EF63AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD284F4E-3B77-4545-8368-45BA77EF63AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

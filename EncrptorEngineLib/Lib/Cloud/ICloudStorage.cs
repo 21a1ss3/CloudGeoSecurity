@@ -10,7 +10,7 @@ namespace Encryptor.Lib
         public string CloudProviderName { get; }
         public Guid CloudId { get; set; }
 
-        public ICloudItemInfo[] EnumFiles(string path);
+        public ICloudItemInfo[] EnumItems(string path);
 
         public ICloudItemInfo GetItemInfo(string path);
 
